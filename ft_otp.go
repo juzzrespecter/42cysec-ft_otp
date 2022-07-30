@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"os"
-	"fmt"
 	"log"
+	"encoding/hex"
 )
 
 func generate_new_password(key_file string) {
@@ -15,7 +15,16 @@ func store_new_key(user_input string) {
 	if len(user_input) < 64 {
 		log.Panic("error: key must not be lower than 64 bytes")
 	}
-	key_file, err := os.OpenFile("key")
+	f, err := os.OpenFile("ft_otp.key", os.O_WRONLY|os.O_CREATE, 0600)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.close()
+	_, err := f.Write(key_encrypt(user_input))
+	if err != nil {
+		/* f closes when panic ? */
+		log.Panic(err)
+	}
 }
 
 func main() {
