@@ -7,11 +7,12 @@ import (
 
 /* Utilities for key encryption/decryption */
 
-const secret_key = "abubilla"
+secret_key := [16]byte{ "\x61", "\x62", "\x75", "\x62", "\x69", "\x6c", "\x6c", "\x61",
+	"\x61", "\x62", "\x75", "\x62", "\x69", "\x6c", "\x6c", "\x61" } /* 128-bit key */
 
 func key_decrypt(key string) ([]byte, err) {
 	dst := make([]byte, len(key))
-	c, err := aes.NewCypher(key)
+	c, err := aes.NewCypher(secret_key)
 	if err != nil {
 		return []byte{}, err
 	}

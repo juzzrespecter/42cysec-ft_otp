@@ -5,43 +5,46 @@ import (
 	"os"
 	"log"
 	"encoding/hex"
-	"io/ioutils"
 	"time"
 	"math"
 )
 
-func totp_truncate([20]byte mac) {
-	/* Dynamic truncation */
+func check_error(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+/* Dynamic truncation of hmac hash */
+func totp_truncate(mac [20]byte) {
 	offs := mac[19] & 0x0f
-	dbc1 := (mac[offs] & 0x7f) << 24
-	| (mac[offs+1]) << 16
-	| (mac[offs+2]) << 8
-	| mac[offs+3]
+	dbc1 := (mac[offs] & 0x7f) << 24 |
+		(mac[offs+1]) << 16 |
+		(mac[offs+2]) << 8 |
+		 mac[offs+3]
 
 	dbc2 := dbc1 % math.Pow(10, 6)
 	return dbc2
 }
 
-func generate_new_password(key_file string) err {
-	key, err := ioutils.ReadFile(key_file)
-	if err != nil {
-		return err
-	}
-	K, err := key_decrypt(key) /* 1st param. of HMAC-SHA-1 */
-	if err != nil {
-		return err
-	}
+func totp_timestamp() [8]byte {	
 	T := make([]byte, 8)
 	timestamp := time.Now().Unix()
 	for i := 0; i < 4; i++ {
 		T[i + 4] = uint8(timestamp >> (24 - (i*8)))
-	} /* 2nd param. of HMAC-SHA-1 */
+	}
+	return T
+}
+
+/* Totp code generator */
+func Totp_new_code(K []byte) (string, err) {
+	T := totp_timestamp()
 	mac, err := Hmac(K, T)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	totp := hmac_truncate(mac)
-	fmt.Println(totp)
+	totp_key := hmac_truncate(mac)
+	return totp_key
 }
 
 func store_new_key(user_input string) err {
@@ -79,17 +82,21 @@ func main() {
 	flag.Parse()
 	if *g != "" && *k != "" {
 		flag.PrintDefaults()
-		os.Exit(1)
+		return 1
 	}
 	if *k != "" {
-		err = generate_new_password(*k)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, err)
-		}
+		key, err := os.ReadFile(key_file)
+		check_error(err)
+		
+		K, err := key_decrypt(key)
+		check_error(err)
+		
+		code, err := Totp_new_code(K)
+		check_error(err)
+
+		fmt.Println(code)
 	} else {
-		err = store_new_key(*g)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, err)
-		}
+		err := store_new_key(*g)
+		check_error(err)
 	}
 }
