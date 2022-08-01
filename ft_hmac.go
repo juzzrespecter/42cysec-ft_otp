@@ -46,8 +46,8 @@ func hmac_init_mask(val uint8, len int) []byte {
 }
 
 func Hmac(k []byte, t []byte) ([L]byte, error) {
-	ipad := hmac_init_mask(ipad_n, B)
-	opad := hmac_init_mask(opad_n, B)
+	ipad := hmac_init_mask(ipad_b, B)
+	opad := hmac_init_mask(opad_b, B)
 	
 	if len(k) > B {
 		hk := sha1.Sum(k)

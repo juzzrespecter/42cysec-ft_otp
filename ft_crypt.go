@@ -3,14 +3,13 @@ package main
 import (
 	"crypto/aes"
 	"encoding/base32"
+	"fmt"
 )
 
-/* Utilities for key encryption/decryption */
+var secret_key = [16]byte{ 0x61, 0x62, 0x75, 0x62, 0x69, 0x6c, 0x6c, 0x61,
+	0x61, 0x62, 0x75, 0x62, 0x69, 0x6c, 0x6c, 0x61 } /* 128-bit key */
 
-secret_key := [16]byte{ "\x61", "\x62", "\x75", "\x62", "\x69", "\x6c", "\x6c", "\x61",
-	"\x61", "\x62", "\x75", "\x62", "\x69", "\x6c", "\x6c", "\x61" } /* 128-bit key */
-
-func key_decrypt(key string) ([]byte, err) {
+func key_decrypt(key []byte) ([]byte, error) {
 	dst := make([]byte, len(key))
 	c, err := aes.NewCypher(secret_key)
 	if err != nil {
@@ -21,12 +20,12 @@ func key_decrypt(key string) ([]byte, err) {
 	return dst, nil
 }
 
-func key_encrypt(src []byte) string {
-	dst := make([]byte, len(toEncrypt))
+func key_encrypt(src []byte) (string, error) {
+	dst := make([]byte, len(src))
 	c, err := aes.NewCypher(secret_key)
 
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	c.Encrypt(dst, src)
 	fmt.Println(dst) /* test */

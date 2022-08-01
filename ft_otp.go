@@ -7,6 +7,8 @@ import (
 	"encoding/hex"
 	"time"
 	"math"
+	"errors"
+	"fmt"
 )
 
 func check_error(err error) {
@@ -16,18 +18,18 @@ func check_error(err error) {
 }
 
 /* Dynamic truncation of hmac hash */
-func totp_truncate(mac [20]byte) {
+func totp_truncate(mac [20]byte) int32 {
 	offs := mac[19] & 0x0f
 	dbc1 := (mac[offs] & 0x7f) << 24 |
 		(mac[offs+1]) << 16 |
 		(mac[offs+2]) << 8 |
 		 mac[offs+3]
 
-	dbc2 := dbc1 % math.Pow(10, 6)
+	dbc2 := int32(dbc1) % int32(math.Pow(10, 6))
 	return dbc2
 }
 
-func totp_timestamp() [8]byte {	
+func totp_timestamp() []byte {	
 	T := make([]byte, 8)
 	timestamp := time.Now().Unix()
 	for i := 0; i < 4; i++ {
@@ -37,17 +39,17 @@ func totp_timestamp() [8]byte {
 }
 
 /* Totp code generator */
-func Totp_new_code(K []byte) (string, err) {
+func totp_new_code(K []byte) (int32, error) {
 	T := totp_timestamp()
 	mac, err := Hmac(K, T)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
-	totp_key := hmac_truncate(mac)
-	return totp_key
+	totp_key := totp_truncate(mac)
+	return totp_key, nil
 }
 
-func store_new_key(user_input string) err {
+func store_new_key(user_input string) error {
 	if len(user_input) < 64 {
 		return errors.New("error: key must not be lower than 64 bytes")
 	}
@@ -59,12 +61,12 @@ func store_new_key(user_input string) err {
 	if err != nil {
 		return err
 	}
-	defer f.close()
+	defer f.Close()
 	encrypted_key, err := key_encrypt(plain_key)
 	if err != nil {
 		return err
 	}
-	_, err := f.Write(encrypted_key)
+	_, err = f.Write([]byte(encrypted_key))
 	if err != nil {
 		return err
 	}
@@ -82,16 +84,16 @@ func main() {
 	flag.Parse()
 	if *g != "" && *k != "" {
 		flag.PrintDefaults()
-		return 1
+		os.Exit(1)
 	}
 	if *k != "" {
-		key, err := os.ReadFile(key_file)
+		key, err := os.ReadFile(*k)
 		check_error(err)
 		
 		K, err := key_decrypt(key)
 		check_error(err)
 		
-		code, err := Totp_new_code(K)
+		code, err := totp_new_code(K)
 		check_error(err)
 
 		fmt.Println(code)
