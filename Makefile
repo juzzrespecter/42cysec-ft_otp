@@ -11,18 +11,14 @@ NAME	= ft_otp
 
 build:
 	@go build -o $(NAME) .
-	@echo ${GREEN} "[build] ${NAME} built successfully!" ${END}
-
-run:
-	@echo ${BLUE} "[run] running ${NAME}" ${END}
-	@go run .
+	@echo ${GREEN} "[build] " ${END} "✨ ${NAME} built successfully! ✨"
 
 clean:
 	@go clean
-	@echo ${RED} "[clean] cleaning cache..." ${END}
+	@echo ${RED} "[clean] " ${END} "cleaning cache..."
 	@rm -f $(NAME)
-	@echo ${RED} "[clean] removed ${NAME}" ${END}
+	@echo ${RED} "[clean] " ${END} "removed ${NAME}"
 
 test:
-	@echo ${BLUE} "[test] running tests for ${NAME}..." ${END}
+	@echo ${BLUE} "[test] " ${END} "running tests for ${NAME}..."
 	@go test
