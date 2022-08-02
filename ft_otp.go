@@ -74,15 +74,16 @@ func store_new_key(user_input string) error {
 }
 
 func main() {
-	if len(os.Args[1:]) > 2 {
-		flag.PrintDefaults()
-		os.Exit(1)
-	}
 	g := flag.String("g", "" ,"encrypt and store key given by user")
 	k := flag.String("k", "", "generate new temporary password")
 
 	flag.Parse()
+	if len(os.Args[1:]) != 2 {
+		flag.PrintDefaults()
+		os.Exit(1)
+	}
 	if *g != "" && *k != "" {
+		fmt.Fprintln(os.Stderr, "Usage of ./ft_otp:")
 		flag.PrintDefaults()
 		os.Exit(1)
 	}
