@@ -26,52 +26,53 @@ func check_error(err error) {
 /* Dynamic truncation of hmac hash */
 func totp_truncate(mac [20]byte) int32 {
 	offs := mac[19] & 0x0f
-	dbc1 := (mac[offs] & 0x7f) << 24 |
-		(mac[offs+1]) << 16 |
-		(mac[offs+2]) << 8 |
-		 mac[offs+3]
+	var dbc1 int = (int(mac[offs]) & 0x7f) << 24 |
+		(int(mac[offs+1])) << 16 |
+		(int(mac[offs+2])) << 8 |
+		int(mac[offs+3])
 
 	dbc2 := int32(dbc1) % int32(math.Pow(10, 6))
-	fmt.Printf("%d mod %d = %d\n", int32(dbc1), int32(math.Pow(10,6)), dbc2)
 	return dbc2
 }
 
 func totp_timestamp() []byte {	
 	T := make([]byte, 8)
 	timestamp := time.Now().Unix() / 30
+	
 	for i := 0; i < 4; i++ {
 		T[i + 4] = uint8(timestamp >> (24 - (i*8)))
 	}
-	fmt.Printf("timestamp: %q\n", T)
 	return T
 }
 
 func totp_new_code(K []byte) (int32, error) {
 	T := totp_timestamp()
 	mac, err := Hmac(K, T)
+	
 	if err != nil {
 		return 0, err
 	}
 	totp_key := totp_truncate(mac)
+	
 	return totp_key, nil
 }
 
 func generate_code(key_file string) (int32, error) {
 	key, err := os.ReadFile(key_file)
+	
 	if err != nil {
 		return 0, err
 	}
-	fmt.Printf("1st step: read file %q\n", key)
 	K, err := key_decrypt(key)
+	
 	if err != nil {
 		return 0, err
 	}
-	fmt.Printf("2nd step: decode key %q\n", K)
 	code, err := totp_new_code(K)
+	
 	if err != nil {
 		return 0, err
 	}
-	fmt.Printf("Last step: code %q\n", code)
 	return code, nil
 }
 
@@ -116,7 +117,7 @@ func main() {
 	if *k != "" {
 		code, err := generate_code(*k)
 		check_error(err)
-		fmt.Println(code)
+		fmt.Printf("%06d\n",code)
 	} else {
 		err := store_new_key(*g)
 		check_error(err)

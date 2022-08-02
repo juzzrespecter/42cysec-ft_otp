@@ -3,7 +3,6 @@ package main
 import (
 	"crypto/aes"
 	"encoding/base32"
-	"fmt"
 )
 
 var secret_key = []byte{ 0x61, 0x62, 0x75, 0x62, 0x69, 0x6c, 0x6c, 0x61,
@@ -26,7 +25,6 @@ func key_decrypt(key []byte) ([]byte, error) {
 		return []byte{}, err
 	}
 	dst := make([]byte, len(src))
-	fmt.Printf("len: %d\n", len(key))
 	c, err := aes.NewCipher(secret_key)
 	
 	if err != nil {
@@ -39,7 +37,6 @@ func key_decrypt(key []byte) ([]byte, error) {
 		end := idx + 16
 		c.Decrypt(dst[idx:end], src[idx:end])
 	}
-	fmt.Printf("KEY_DECRYPT: %q\n", dst)
 	return dst, nil
 }
 

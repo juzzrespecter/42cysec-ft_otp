@@ -21,4 +21,5 @@ clean:
 
 test:
 	@echo ${BLUE} "[test] " ${END} "running tests for ${NAME}..."
-	@go test
+	@go mod tidy
+	@go test -v
