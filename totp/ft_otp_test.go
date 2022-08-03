@@ -1,16 +1,16 @@
 package main
 
 import (
-	"testing"
 	"crypto/hmac"
 	"crypto/sha1"
-	"github.com/pquerna/otp/totp"
 	"encoding/base32"
-	"time"
 	"fmt"
+	"github.com/pquerna/otp/totp"
+	"testing"
+	"time"
 )
 
-var K = []byte{'t','h','i','s','i','s','a','t','e','s','t','1','2','3','4'}
+var K = []byte{'t', 'h', 'i', 's', 'i', 's', 'a', 't', 'e', 's', 't', '1', '2', '3', '4'}
 
 func TestHmac(t *testing.T) {
 	mac := hmac.New(sha1.New, K)
@@ -26,12 +26,12 @@ func TestHmac(t *testing.T) {
 
 func TestTotp(t *testing.T) {
 	their_K := make([]byte, base32.StdEncoding.EncodedLen(len(K)))
-	
+
 	base32.StdEncoding.Encode(their_K, K)
 	their_totp, err1 := totp.GenerateCode(string(their_K), time.Now())
 	our_totp_n, err2 := totp_new_code(K)
 	our_totp := fmt.Sprintf("%06d", our_totp_n)
-	
+
 	if err1 != nil {
 		t.Fatalf("An exception occured... %s", err1)
 	}
