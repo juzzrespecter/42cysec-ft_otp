@@ -1,7 +1,12 @@
 # ft_otp
+  
+Develop a time-based otp generator app && first steps into go lang
 
 ## usage
 ```
-make build
-./ft_otp [-g KEY] [-k FILE]
+make && ./ft_otp [-g KEY] [-k FILE]
+```
+To dockerize app
+```
+./setup.sh
 ```
