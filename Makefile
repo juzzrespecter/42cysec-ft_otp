@@ -1,10 +1,10 @@
 .PHONY: build run clean test
 
 # ~~ aesthetica ~~ #
-RED="\e[31m"
-BLUE="\e[36m"
-GREEN="\e[32m"
-END="\e[0m"
+RED="\033[31m"
+BLUE="\033[36m"
+GREEN="\033[32m"
+END="\033[0m"
 # ~~     **     ~~ #
 
 DIR	= ./totp/
