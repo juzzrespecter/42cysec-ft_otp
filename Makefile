@@ -7,8 +7,10 @@ GREEN="\033[32m"
 END="\033[0m"
 # ~~     **     ~~ #
 
-DIR	= ./totp/
-NAME	= ft_otp
+DIR	 = ./totp/
+NAME = ft_otp
+
+OS:=$(shell uname | tr '[:upper:]' '[:lower:]' )
 
 all: test vet fmt build
 
@@ -19,13 +21,14 @@ test:
 
 vet:
 	@echo ${BLUE} "[vet] " ${END} "vetting..." 
+	@go vet ./...
 
 fmt:
 	@echo ${BLUE} "[fmt] " ${END} "formatting files..."
 	@go list -f '{{.Dir}}' ./... | xargs -L1 gofmt -l
 
 build:
-	@go build -o $(NAME) ${DIR}
+	@env GOOS=$(OS) go build -o $(NAME) ${DIR}
 	@echo ${GREEN} "[build] " ${END} "✨ ${NAME} built successfully! ✨"
 
 clean:

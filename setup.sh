@@ -2,7 +2,7 @@
 
 # ~ dockerize OTP app. ~
 
-make
+make OS=linux
 docker build . -t ft_otp:latest
 docker run \
        -it \
